@@ -1,0 +1,9 @@
+Columna 1: 2
+Columna 2: 24
+Columna 3: 90
+Columna 4: 224
+Columna 5: 450
+Columna 6: 792
+Columna 7: 1274
+Columna 9: 2754
+Columna 8: 1920
