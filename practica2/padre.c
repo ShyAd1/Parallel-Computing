@@ -46,12 +46,11 @@ int main()
             perror("Error al crear el proceso hijo");
             exit(-1);
         }
-        // Cada proceso hijo debe de abrir el archivo y leer la columna correspondiente a su numero de proceso
-        // Cada proceso hijo debe multiplicar los elementos de la columna que le tocó y el resultado se debe
-        // guardar en el archivo de resultados
+        // Cada proceso hijo debe multiplicar los elementos de la columna que
+        // le tocó y el resultado se debe guardar en el archivo de resultados
         if (procesos_hijos[i] == 0)
         {
-            // Proceso hijo
+            // Logica de cada Proceso hijo
             FILE *archivo_hijo;
             char linea_hijo[100];
             int resultado = 1;
@@ -96,6 +95,7 @@ int main()
         }
     }
 
+    // Esperar a que todos los procesos hijos terminen
     for (int i = 0; i < columnas; i++)
     {
         wait(NULL);
