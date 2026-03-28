@@ -6,10 +6,19 @@
 
 int main()
 {
+    // Crear archivo de texto de la matriz
+    FILE *archivo = fopen("matriz.txt", "w");
+    if (archivo == NULL)
+    {
+        perror("Error al crear el archivo de la matriz");
+        exit(-1);
+    }
+    fprintf(archivo, "1,2,3,4,5,6,7,8,9\n1,3,5,7,9,11,13,15,17\n2,4,6,8,10,12,14,16,18\n");
+    fclose(archivo);
+
     // Leer archivo de texto y sacar el numero de columnas para crear un arreglo de procesos hijos
     // El archivo es una matriz cuyas columnas estan separadas por comas y filas por saltos de linea
     // Cada columna representa un proceso hijo
-    FILE *archivo;
     char linea[100];
     FILE *archivo_resultados;
     int columnas = 0;
