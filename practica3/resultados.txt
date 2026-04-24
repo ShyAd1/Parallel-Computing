@@ -1,0 +1,3 @@
+Resultado fila 1: 362880
+Resultado fila 2: 34459425
+Resultado fila 3: 185794560
