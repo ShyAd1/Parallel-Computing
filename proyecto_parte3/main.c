@@ -152,13 +152,13 @@ int main()
             }
         }
     }
-    if (numero_armonicos > 10)
+    if (numero_armonicos > 25)
     {
         while (1)
         {
-            printf("El numero de armonicos debe ser menor o igual a 10. Ingrese nuevamente: ");
+            printf("El numero de armonicos debe ser menor o igual a 25. Ingrese nuevamente: ");
             scanf("%d", &numero_armonicos);
-            if (numero_armonicos <= 10)
+            if (numero_armonicos <= 25)
             {
                 break;
             }
