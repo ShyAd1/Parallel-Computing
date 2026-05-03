@@ -202,6 +202,15 @@ int main()
     crear_csv(numero_armonicos, opcion_funcion);
     FILE *archivo = NULL;
 
+    // Crear un archivo temporal para usarlo como llave para la memoria compartida y los semaforos
+    FILE *Archivo = fopen("Archivo", "w");
+    if (Archivo == NULL)
+    {
+        perror("Error al crear el archivo de clave");
+        exit(-1);
+    }
+    fclose(Archivo);
+
     // Calcular cuantos procesos hijos se necesitan
     int numero_procesos = calcular_procesos_hijos(PI, PASO);
 
