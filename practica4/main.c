@@ -7,7 +7,7 @@
 // Funcion para crear un csv dinamico de la matriz
 void crear_csv()
 {
-    // archivo de csv dinamico para guardar los resultados de la funcion de fourier
+    // archivo de csv dinamico para crear la matriz de datos
     FILE *archivo = NULL;
     archivo = fopen("matriz.csv", "w");
     // Comprobar si el archivo se creo correctamente
