@@ -6,7 +6,6 @@
 #include <pthread.h>
 
 #define PI 3.14159265358979323846
-#define PERMISOS 0666
 #define PASO 0.1
 #define A0_1 -(pow(PI, 2) / 3)
 #define A0_2 ((6 - 4 * pow(PI, 2)) / 6)
