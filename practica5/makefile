@@ -1,18 +1,21 @@
 CC = mpicc
-CFLAGS = -Wall -Wextra -O2
-TARGET = main
-SRC = main.c
+CFLAGS = -Wall -Wextra -pedantic
 NPROCS = 7
 
-.PHONY: all run clean
+# Compilar y ejecutar el programa
+all: main
 
-all: $(TARGET)
+# Regla para compilar el programa main.c
+main: main.c
+	$(CC) $(CFLAGS) main.c -o main
 
-$(TARGET): $(SRC)
-	$(CC) $(CFLAGS) -o $(TARGET) $(SRC)
+# Regla para ejecutar el programa
+run: main
+	mpirun -np $(NPROCS) ./main
 
-run: $(TARGET)
-	mpirun -np $(NPROCS) ./$(TARGET)
-
+# Limpiar los archivos generados
 clean:
-	rm -f $(TARGET) matriz.csv resultados.csv
+	rm -f main
+
+# Regla por defecto si no se especifica ninguna
+.PHONY: all run clean

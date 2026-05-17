@@ -15,7 +15,7 @@ void crear_csv()
         perror("Error al crear el archivo de resultados");
         exit(-1);
     }
-    for (int i = 1; i <= 3; i++)
+    for (int i = 1; i <= 3; i++) // Fila 1,2,3
     {
         if (i == 3)
         {
@@ -27,7 +27,7 @@ void crear_csv()
         }
     }
     fprintf(archivo, "\n");
-    for (int i = 4; i <= 6; i++)
+    for (int i = 4; i <= 6; i++) // Fila 4,5,6
     {
         if (i == 6)
         {
@@ -39,7 +39,7 @@ void crear_csv()
         }
     }
     fprintf(archivo, "\n");
-    for (int i = 7; i <= 9; i++)
+    for (int i = 7; i <= 9; i++) // Fila 7,8,9
     {
         if (i == 9)
         {
@@ -51,7 +51,19 @@ void crear_csv()
         }
     }
     fprintf(archivo, "\n");
-    for (int i = -6; i >= -12; i -= 3)
+    for (int i = 9; i >= 3; i -= 3) // Fila 9,6,3
+    {
+        if (i == 3)
+        {
+            fprintf(archivo, "%d", i);
+        }
+        else
+        {
+            fprintf(archivo, "%d,", i);
+        }
+    }
+    fprintf(archivo, "\n");
+    for (int i = -6; i >= -12; i -= 3) // Fila -6,-9,-12
     {
         if (i == -12)
         {
@@ -63,7 +75,7 @@ void crear_csv()
         }
     }
     fprintf(archivo, "\n");
-    for (int i = 5; i <= 15; i += 5)
+    for (int i = 5; i <= 15; i += 5) // Fila 5,10,15
     {
         if (i == 15)
         {
@@ -74,22 +86,10 @@ void crear_csv()
             fprintf(archivo, "%d,", i);
         }
     }
-    fprintf(archivo, "\n");
-    for (int i = 22; i <= 36; i += 7)
+    fprintf(archivo, "\n"); // Fila 7,14,21
+    for (int i = 7; i <= 21; i += 7)
     {
-        if (i == 36)
-        {
-            fprintf(archivo, "%d", i);
-        }
-        else
-        {
-            fprintf(archivo, "%d,", i);
-        }
-    }
-    fprintf(archivo, "\n");
-    for (int i = 8; i <= 24; i += 8)
-    {
-        if (i == 24)
+        if (i == 21)
         {
             fprintf(archivo, "%d", i);
         }
@@ -184,7 +184,7 @@ int operacion_por_fila(int fila)
     return resultado;
 }
 
-// FUncion main para crear un proceso por cada fila de la matriz y realizar una operacion por cada fila, luego guardar los resultados en un archivo csv
+// Funcion main para crear un proceso por cada fila de la matriz y realizar una operacion por cada fila, luego guardar los resultados en un archivo csv
 int main(int argc, char *argv[])
 {
     int pid, procesos, filas, i;
@@ -249,11 +249,11 @@ int main(int argc, char *argv[])
         {
             if (i == filas - 1)
             {
-                fprintf(archivo_resultados, "%d", resultados[i]);
+                fprintf(archivo_resultados, "Resultados fila %d: %d", i, resultados[i]);
             }
             else
             {
-                fprintf(archivo_resultados, "%d,", resultados[i]);
+                fprintf(archivo_resultados, "Resultados fila %d: %d\n", i, resultados[i]);
             }
         }
         fprintf(archivo_resultados, "\n");
