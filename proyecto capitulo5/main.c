@@ -125,71 +125,159 @@ int calcular_procesos(double pi, double paso)
 
 int main(int argc, char *argv[])
 {
-    // Cantidad de armonicos a calcular
+    MPI_Init(&argc, &argv);
+    // Inicializar MPI y obtener el id del proceso y el numero total de procesos
+    int pid, procesos, i;
+    MPI_Comm_rank(MPI_COMM_WORLD, &pid);
+    MPI_Comm_size(MPI_COMM_WORLD, &procesos);
+
     int numero_armonicos;
-    printf("Ingrese el numero de armonicos a calcular: ");
-    scanf("%d", &numero_armonicos);
-    if (numero_armonicos <= 0)
-    {
-        while (1)
-        {
-            printf("El numero de armonicos debe ser mayor a 0. Ingrese nuevamente: ");
-            scanf("%d", &numero_armonicos);
-            if (numero_armonicos > 0)
-            {
-                break;
-            }
-        }
-    }
-
-    // Ingresar 0-3 para elegir la funcion de fourier a calcular, en este caso solo se tiene una funcion que es la de fourier, asi que se ingresa 0
     int opcion_funcion;
-    printf("Funciones de Fourier disponibles:\n");
-    printf("0. Funcion de Fourier de -x² - x\n");
-    printf("1. Funcion de Fourier de -2x² - x + 1\n");
-    printf("2. Funcion de Fourier de -x/2 - 1/4\n");
-    printf("3. Funcion de Fourier de x⁴ - x\n");
-    printf("Ingrese el numero de la funcion de fourier a calcular: ");
-    scanf("%d", &opcion_funcion);
-    if (opcion_funcion < 0)
+
+    if (pid == 0)
     {
-        while (1)
+        // Cantidad de armonicos a calcular
+        printf("Ingrese el numero de armonicos a calcular: ");
+        fflush(stdout);
+        scanf("%d", &numero_armonicos);
+        if (numero_armonicos <= 0)
         {
-            printf("El numero de la funcion de fourier debe ser mayor o igual a 0. Ingrese nuevamente: ");
-            scanf("%d", &opcion_funcion);
-            if (opcion_funcion >= 0)
+            while (1)
             {
-                break;
+                printf("El numero de armonicos debe ser mayor a 0. Ingrese nuevamente: ");
+                fflush(stdout);
+                scanf("%d", &numero_armonicos);
+                if (numero_armonicos > 0)
+                {
+                    break;
+                }
             }
         }
-    }
-    if (opcion_funcion > 3)
-    {
-        while (1)
+
+        // Ingresar 0-3 para elegir la funcion de fourier a calcular, en este caso solo se tiene una funcion que es la de fourier, asi que se ingresa 0
+        printf("Funciones de Fourier disponibles:\n");
+        printf("0. Funcion de Fourier de -x² - x\n");
+        printf("1. Funcion de Fourier de -2x² - x + 1\n");
+        printf("2. Funcion de Fourier de -x/2 - 1/4\n");
+        printf("3. Funcion de Fourier de x⁴ - x\n");
+        printf("Ingrese el numero de la funcion de fourier a calcular: ");
+        fflush(stdout);
+        scanf("%d", &opcion_funcion);
+        if (opcion_funcion < 0)
         {
-            printf("El numero de la funcion de fourier debe ser menor o igual a 3. Ingrese nuevamente: ");
-            scanf("%d", &opcion_funcion);
-            if (opcion_funcion <= 3)
+            while (1)
             {
-                break;
+                printf("El numero de la funcion de fourier debe ser mayor o igual a 0. Ingrese nuevamente: ");
+                fflush(stdout);
+                scanf("%d", &opcion_funcion);
+                if (opcion_funcion >= 0)
+                {
+                    break;
+                }
+            }
+        }
+        if (opcion_funcion > 3)
+        {
+            while (1)
+            {
+                printf("El numero de la funcion de fourier debe ser menor o igual a 3. Ingrese nuevamente: ");
+                fflush(stdout);
+                scanf("%d", &opcion_funcion);
+                if (opcion_funcion <= 3)
+                {
+                    break;
+                }
             }
         }
     }
 
-    crear_csv(numero_armonicos, opcion_funcion);
+    MPI_Bcast(&numero_armonicos, 1, MPI_INT, 0, MPI_COMM_WORLD);
+    MPI_Bcast(&opcion_funcion, 1, MPI_INT, 0, MPI_COMM_WORLD);
+
+    if (pid == 0)
+    {
+        crear_csv(numero_armonicos, opcion_funcion);
+    }
 
     // Calcular cuantos procesos se necesitan
     int numero_procesos = calcular_procesos(PI, PASO);
 
-    // Crear procesos para calcular la funcion de fourier en cada valor de x
-    int pid, procesos, i;
+    // Cada proceso llena una tabla local de filas.
+    // Luego se usa MPI_Reduce para juntar todas las tablas en el proceso 0.
+    // La suma funciona porque cada fila la llena un solo proceso y las demás quedan en cero.
+    int columnas = numero_armonicos + 2; // x + armónicos + F
+    int total = numero_procesos * columnas;
 
-    // Inicializar MPI y obtener el id del proceso y el numero total de procesos
-    MPI_Init(&argc, &argv);
-    MPI_Comm_rank(MPI_COMM_WORLD, &pid);
-    MPI_Comm_size(MPI_COMM_WORLD, &procesos);
+    double *local = (double *)malloc((size_t)total * sizeof(double));
+    double *global = NULL;
+    if (!local)
+    {
+        perror("malloc local");
+        MPI_Abort(MPI_COMM_WORLD, -1);
+    }
+    for (int k = 0; k < total; k++)
+    {
+        local[k] = 0.0;
+    }
 
-    // Divir por 8 procesos ya que MPI usa procesos del procesador y el procesador tiene 8 nucleos, asi se aprovecha al maximo el procesador
-    // Por lo que tomara de 8 en 8 valores de x para calcular la funcion de fourier, es decir, el proceso 0 calculara los valores de
-    // x = -3.14, -3.04, -2.94, -2.84, -2.74, -2.64, -2.54, -2.44 y asi sucevamente hasta llegar a x = 3.14
+    if (pid == 0)
+    {
+        global = (double *)malloc((size_t)total * sizeof(double));
+        if (!global)
+        {
+            perror("malloc global");
+            free(local);
+            MPI_Abort(MPI_COMM_WORLD, -1);
+        }
+        for (int k = 0; k < total; k++)
+        {
+            global[k] = 0.0;
+        }
+    }
+
+    // Cada proceso calcula sus filas y guarda los armónicos individuales y la suma.
+    for (i = pid; i < numero_procesos; i += procesos)
+    {
+        double x = -PI + i * PASO;
+        if (x > PI)
+        {
+            x = PI; // Asegurarse de que el ultimo valor de x sea exactamente PI
+        }
+        double resultado = obtener_a0(opcion_funcion);
+        int base = i * columnas;
+
+        local[base] = x;
+        for (int n = 1; n <= numero_armonicos; n++)
+        {
+            double termino = funcion_fourier(x, n, opcion_funcion);
+            resultado += termino;
+            local[base + n] = termino;
+        }
+        local[base + columnas - 1] = resultado;
+    }
+
+    MPI_Reduce(local, global, total, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+
+    if (pid == 0)
+    {
+        FILE *out = abrir_archivo_resultados(opcion_funcion);
+        for (int i = 0; i < numero_procesos; i++)
+        {
+            int base = i * columnas;
+            fprintf(out, "%lf", global[base]);
+            for (int n = 1; n <= numero_armonicos; n++)
+            {
+                fprintf(out, ",%lf", global[base + n]);
+            }
+            fprintf(out, ",%lf\n", global[base + columnas - 1]);
+        }
+        fclose(out);
+        free(global);
+    }
+
+    free(local);
+
+    MPI_Finalize();
+
+    return 0;
 }
