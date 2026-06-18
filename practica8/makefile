@@ -6,7 +6,7 @@ all: main
 
 # Regla para compilar el programa main.cu
 main: main.cu
-	$(CC) $(CFLAGS) main.cu -o main
+	$(CC) $(NVCCFLAGS) main.cu -o main
 
 # Regla para ejecutar el programa
 run: main
